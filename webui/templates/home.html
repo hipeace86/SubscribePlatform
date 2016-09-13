@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{%block content %}
+<div class="container">
+<div class="row">
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#newModalDialog" >新建订阅</button>
+
+<div class="modal fade" id="newModalDialog" tabindex="-1" role="dialog" aria-labelledby="newModalDialogLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="newModalDialogLabel">新建</h4>
+      </div>
+      <div class="modal-body">
+        <form method="post" action="/">
+          <div class="form-group">
+            <label for="recipient-name" class="control-label">项目名称:</label>
+            <input type="text" class="form-control" name="project" placeholder="项目名称">
+          </div>
+          <div class="form-group">
+            <label for="recipient-name" class="control-label">通知地址:</label>
+            <input type="text" class="form-control" name="notifyUrl" placeholder="http://v3.iprun.com/rabbitmq">
+          </div>
+
+          <div class="form-group">
+            <label for="message-text" class="control-label">备注:</label>
+            <textarea class="form-control" id="message-text" name="note"></textarea>
+          </div>
+           <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <input type="submit" class="btn btn-primary"></input>
+           </div>
+           {{ xsrf_form_html() }}
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+</div>
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>项目名称</th>
+      <th>接口地址</th>
+      <th>当前状态</th>
+      <th>备注</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for project in projects %}
+    <tr> <th scope="row">{{ loop.index }}</th>
+      <td><a href="/project/{{project.ProjectName}}">{{project.ProjectName}}</a></td>
+      <td>{{project.Url}}</td>
+      {% if project.Status == 1%}
+      <td>
+        <span class="label label-success">Running</span>
+      </td>
+      {%else%}
+      <td>
+        <span class="label label-danger">Stopped</span>
+      </td>
+      {%endif%}
+      <td>{{project.Desc}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}
+{% block javascript %}
+<script>
+  $(document).ready(function(){
+    $('#newModalDialog').on('show.bs.modal', function (event) {
+      var modal = $(this)
+      modal.find('.modal-body input').val()
+    });
+  }
+  );
+</script>
+{% endblock %}

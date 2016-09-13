@@ -1,0 +1,10 @@
+{
+  "webui": {
+    "sqlalchemy": "sqlite:///sp.db",
+    "port":5000
+  },
+  "record": {
+    "sqlalchemy": "sqlite:///sp.db",
+    "amqp": "amqp://guest@localhost//"
+  }
+}

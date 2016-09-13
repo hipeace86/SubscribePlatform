@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %} PythonIDE {% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div id="code" class="col-md-8"></div>
+  <div class="col-md-2 col-md-offset-9">
+      <div class="row">
+          <div class="alert alert-info" role="alert">
+
+          </div>
+      </div>
+      <div class="row">
+          <button type="button" class="btn btn-danger">保存</button>
+          <button type="button" class="btn btn-success" {% if status == 1 %} disabled {%endif%}>Run</button>
+          <button type="button" class="btn btn-info" {% if status == 2 %} disabled {% endif %}>Stop</button>
+      </div>
+  </div>
+  </div>
+</div>
+{% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="{{ static_url("lib/codemirror.css")}}">
+    <link rel="stylesheet" href="{{ static_url("theme/monokai.css")}}">
+    <link rel="stylesheet" href="{{ static_url("editor.css")}}">
+    {% endblock %}
+    {% block javascript %}
+    <script src="{{ static_url("lib/codemirror.js")}}"></script>
+    <script src="{{ static_url("mode/python/python.js")}}"></script>
+ <script>
+   $(document).ready(function(){
+   $('.btn-danger').click(function(){
+      $.ajax({
+        url:'/ajax/{{project}}/save',
+        method:"POST",
+        data:{"script":cm.getValue()},
+        success:function(data){
+            $('.alert').show().html(data.msg);
+            $(".alert").delay(4000).slideUp(200, function() {
+                $(this).hide();
+            });
+            console.log(data);
+        }
+      });
+   });
+   $('.btn-success').click(function(){
+     $.ajax({
+        url:'/ajax/{{project}}/run',
+        method:"get",
+        success:function(data){
+            if (data.status == 200){
+                $('.btn-success').prop( "disabled", true );
+                $('.btn-info').prop( "disabled", false );
+            }
+            $('.alert').show().html(data.msg);
+            $(".alert").delay(4000).slideUp(200, function() {
+                $(this).hide();
+            });
+        }
+     });
+   });
+   $('.btn-info').click(function(){
+    $.ajax({
+        url:'/ajax/{{project}}/stop',
+        method:"get",
+        success:function(data){
+            if (data.status == 200){
+                $('.btn-success').prop( "disabled", false );
+                $('.btn-info').prop( "disabled", true );
+            }
+            $('.alert').show().html(data.msg);
+            $(".alert").delay(4000).slideUp(200, function() {
+                $(this).hide();
+            });
+        }
+     });
+   });
+          CodeMirror.keyMap.basic.Tab = 'indentMore';
+          var cm  = CodeMirror($('#code')[0], {
+            value: {{defaultWorker|safe}},
+            mode: "python",
+            indentUnit: 4,
+            lineWrapping: true,
+            styleActiveLine: true,
+            autofocus: true,
+            lineNumbers: true,
+            indentUnit: 4,
+            theme:"monokai"
+          });
+         cm.setSize("100%", "100%");
+      });
+
+    </script>
+{% endblock %}

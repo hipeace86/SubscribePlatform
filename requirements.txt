@@ -1,0 +1,8 @@
+click
+six
+tornado
+Jinja2
+celery
+requests
+SqlAlchemy
+pika
