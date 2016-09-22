@@ -68,11 +68,12 @@ def cli(ctx, **kwargs):
 @click.option('--port', default=5000, envvar='WEBUI_PORT',
               help='webui bind to host')
 @click.option('--scheduler-rpc', help='xmlrpc path of scheduler')
-@click.option('--sqlalchemy', default="mysql://root:111222@localhost/zcloud?charset=utf8")
+@click.option('--sqlalchemy', default="mysql://root:111222@localhost/test?charset=utf8")
 @click.pass_context
 def webui(ctx, host, port, scheduler_rpc, sqlalchemy):
     from webui.app import make_app
     import tornado
+    import tornado.httpserver
     app = make_app()
     from webui.libs.Route import makesession
     app.db = makesession(sqlalchemy)
@@ -91,10 +92,12 @@ def webui(ctx, host, port, scheduler_rpc, sqlalchemy):
     if g.debug:
         from tornado import autoreload
         autoreload.start()
-    app.listen(port, address=host)
-    # webui_ioloop = tornado.ioloop.IOLoop()
-    # g.webui_ioloop = webui_ioloo
-    tornado.ioloop.IOLoop.instance().start()
+
+    webui_ioloop = tornado.ioloop.IOLoop()
+    g.webui_ioloop = webui_ioloop
+    webui_server = tornado.httpserver.HTTPServer(app, io_loop=webui_ioloop)
+    webui_server.listen(port=port, address=host)
+    webui_ioloop.start()
 
 
 @cli.command()
@@ -172,8 +175,8 @@ def all(ctx, run_in):
             if hasattr(each, 'terminate'):
                 each.terminate()
             each.join()
-        import tornado
-        tornado.ioloop.IOLoop.instance().stop()
+        g.webui_ioloop.stop()
+
 
 if __name__ == "__main__":
     cli()

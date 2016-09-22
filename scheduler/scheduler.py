@@ -70,7 +70,7 @@ class Scheduler(object):
         def stop_project(projectName):
             try:
                 project = self.projects.get(projectName)
-                project['worker'].pause()
+                # project['worker'].pause()
                 project['process'].terminate()
                 logger.info('{0} stoped'.format(projectName))
                 return True
